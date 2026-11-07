@@ -1,0 +1,39 @@
+# POST Endpoint Contract Definition with Dynamic Matchers
+# Step 1: Contract file under contracts resource directory
+name: should_return_dynamic_jwt_token_on_signin
+description: |
+  Authentication service processes user credentials via POST request
+  and returns a JSON payload containing a dynamic JWT token.
+  Contract uses a dynamic JSONPath regex matcher to validate the non-static token field.
+
+# Step 2: Request Payload Specification
+request:
+  method: POST
+  url: /ms1/signin
+  headers:
+    Content-Type: application/json
+  body:
+    username: "user"
+    password: "password123"
+  matchers:
+    headers:
+      - key: Content-Type
+        regex: "application/json.*"
+
+# Step 3: Response & Dynamic Matcher Configuration
+response:
+  status: 200
+  headers:
+    Content-Type: application/json
+  body:
+    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyIiwiaWF0IjoxNzAwMDAwMDAwLCJleHAiOjE3MDAwMDM2MDB9.dynamicSignature123"
+  matchers:
+    headers:
+      - key: Content-Type
+        regex: "application/json.*"
+    body:
+      # JSONPath regular expression matcher targeting dynamic token field
+      # Accepting any non-empty string (at least one non-whitespace character)
+      - path: $.token
+        type: by_regex
+        value: "^\\s*\\S.*$"
